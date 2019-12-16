@@ -1,6 +1,6 @@
-# First Brain [MIBI - ez_segmenter] Paper Data Overlay Script
-# Working with post-ez_segmenter data (MATLAB generated) for single object overlay
-# Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
+##### ez_Overlay_current #####
+  # Working with post-ez_segmenter data (MATLAB GUI generated) for single object overlay #
+  # Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
 
 # install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
 install_ez_packages(T)
@@ -83,20 +83,6 @@ load_ez_packages(T)
         dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p), showWarnings = FALSE)
         dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p, "/TIFs/"), showWarnings = FALSE)
         writeImage(img, paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p, "/TIFs/", object_types[obj_index], ".tif"))
-        
-        # composite image = new vector of images
-        # for each object type in object types
-        # import the newModL csv or matrix from .mat file for this point, this object
-        # if clusters in the data: TBD----------------------------------------------------> still need to think about this, more relevant for DM
-        # if no clusters in the data, then assign a color to this object type
-        # convert newModL csv (now a matrix or data frame) into an RGB image using color type
-        # hold image in composite queue.
-        # combo imgae = use magick to merge these images into one
-        # save image in the point for later tiling in matlab (eventually R)
-        
-        # to incorporate deep cell data, use code from deep cell overlay to produce 
-        # cluster annotation to RGB assignment and produce an image (ensure no clash with ez objects)
-        # add image to composite image and proceed with merge as planned
       }
     }
   }

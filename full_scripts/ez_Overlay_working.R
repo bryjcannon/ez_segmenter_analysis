@@ -1,25 +1,26 @@
-# First Brain [MIBI - ez_segmenter] Paper Data Overlay Script
-# Working with post-ez_segmenter data (MATLAB generated) for single object overlay
+##### ez_Overlay_working #####
+# Working with post-ez_segmenter data (MATLAB GUI generated) for single object overlay, use this script only for testing new code #
 # Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
 
-library(EBImage)
-library(nnet)
-library(reshape2)
+# install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
+install_ez_packages(T)
+load_ez_packages(T)
 
+##### FILE & DATA SETTINGS - user must adjust these! #####
 # run on data that has been already read and transformed into R using ezAnalysis script (script will output all_data)
 data_for_overlays <- master_obj_data
-
-dataPath = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiResTMA/PD_Panel/'
+# enter head folder where your ez data is stored
+dataPath = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
 setwd(dataPath)
 # runs, i.e. regions scanned
-dataRuns = c('ezSegResults_tma_PDpanel')
+dataRuns = c('ezSegResults_CA2+', 'ezSegResults_DG+')
 # shorthand for regions or runs, used in run_type_id
-dataRunsShort = c('PD')
+dataRunsShort = c('CA2', 'DG')
 # where the objects / data / csv / mat files are stored
 dataContainer = 'objects_points'
 # object types you plan to cluster)
-object_types <- c('amyloidopathy', 'microglia_process', 'synucleinopathy', 'tauopathy', 'vessel_CD31_CD105', 'vessel_MCT1')
-# boolean denoting if clustering was performed on the objects or not
+object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1', 'cell')
+# boolean denoting if clustering was performed on the objects (T) or not (F)
 objects_clustered = F
 # color palete of choice
 palette <- c25
@@ -28,6 +29,7 @@ resolution_dim = c(1024, 1024)
 # list of actual point numbers (i.e. which points you actually want to overlay, e.g. c(4,6:9) for Points 4 and 6 through 9)
 point_list <- c(1:3)
 
+##### OVERLAY CONSTRCTION PROCESS - run entire code block #####
 # for each run, for each point, for each object, create and save colored overlays
 for (i in 1:length(dataRunsShort)) {
   region = dataRunsShort[i]
@@ -84,11 +86,11 @@ for (i in 1:length(dataRunsShort)) {
       
       # composite image = new vector of images
       # for each object type in object types
-        # import the newModL csv or matrix from .mat file for this point, this object
-        # if clusters in the data: TBD----------------------------------------------------> still need to think about this, more relevant for DM
-        # if no clusters in the data, then assign a color to this object type
-          # convert newModL csv (now a matrix or data frame) into an RGB image using color type
-          # hold image in composite queue.
+      # import the newModL csv or matrix from .mat file for this point, this object
+      # if clusters in the data: TBD----------------------------------------------------> still need to think about this, more relevant for DM
+      # if no clusters in the data, then assign a color to this object type
+      # convert newModL csv (now a matrix or data frame) into an RGB image using color type
+      # hold image in composite queue.
       # combo imgae = use magick to merge these images into one
       # save image in the point for later tiling in matlab (eventually R)
       
@@ -98,4 +100,3 @@ for (i in 1:length(dataRunsShort)) {
     }
   }
 }
-
