@@ -1,6 +1,6 @@
 # First Brain [MIBI - ez_segmenter] Paper Data Overlay Script
 # Working with post-ez_segmenter data (MATLAB generated) for single object overlay
-# Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT***(in particular here))
+# Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
 
 library(EBImage)
 library(nnet)
@@ -25,7 +25,7 @@ objects_clustered = F
 palette <- c25
 # the resolution of your images, e.g. 512 x 512, 1024 x 1024, etc.
 resolution_dim = c(1024, 1024)
-# list of point numbers
+# list of actual point numbers (i.e. which points you actually want to overlay, e.g. c(4,6:9) for Points 4 and 6 through 9)
 point_list <- c(1:3)
 
 # for each run, for each point, for each object, create and save colored overlays
@@ -46,12 +46,7 @@ for (i in 1:length(dataRunsShort)) {
         obj_mask <- zeros(resolution_dim[1], resolution_dim[2])
       }) # end of tryCatch loop
       
-      # reassign id's to value of 1 if no clustering performed
-      #if (objects_clustered == F) {
-      #  obj_mask[obj_mask > 1] = 1
-      #}
-      
-      # create three channels (red, green, blue) for the mask to use in later Image creation
+      # create three channels (red, green, blue) for the mask to use in later Image creation - inits with empty matrix size of the image
       obj_mask_r = zeros(resolution_dim[1], resolution_dim[2])
       obj_mask_g = zeros(resolution_dim[1], resolution_dim[2])
       obj_mask_b = zeros(resolution_dim[1], resolution_dim[2])
