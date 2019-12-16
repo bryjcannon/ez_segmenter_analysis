@@ -53,23 +53,25 @@
 # linear, arcsinh, quantile normalization of data + setting up subsamples (need to revisit - do per object type)
   
   # assign and standardize panels if needed
-  panel <- names(master_obj_data[, 8:48][, -c(4,5)]) # remove metals, composites, other labels
+  panel_start = 8
+  panel_end = 48
+  panel <- names(master_obj_data[,panel_start:panel_end][, -c(4,5)]) # remove metals, composites, other labels
   
   # linear transformation
   obj_linear_transform <- master_obj_data
-  obj_linear_transform[,8:48] <- obj_linear_transform[,8:48]*100 # multiply all counts by 100 (linear transform)
+  obj_linear_transform[,panel_start:panel_end] <- obj_linear_transform[,panel_start:panel_end]*100 # multiply all counts by 100 (linear transform)
   
   # do arcsinh transformation only for the clustering.channels
   obj_lin_asinh_transf <- obj_linear_transform
   asinh_scale <- 5
-  obj_lin_asinh_transf[,8:48] <- asinh(obj_lin_asinh_transf[,8:48] / asinh_scale)
+  obj_lin_asinh_transf[,panel_start:panel_end] <- asinh(obj_lin_asinh_transf[,panel_start:panel_end] / asinh_scale)
   
   # PERCENTILE normalize expression values from 0 to 1
   obj_normalized <- obj_lin_asinh_transf
-  normalization_vector <- apply(obj_lin_asinh_transf[,8:48], 2, function(x) quantile(x, 0.9999, names = F))
-  obj_normalized[,8:48] <- t(t(obj_normalized[,8:48]) / as.numeric(normalization_vector))
+  normalization_vector <- apply(obj_lin_asinh_transf[,panel_start:panel_end], 2, function(x) quantile(x, 0.9999, names = F))
+  obj_normalized[,panel_start:panel_end] <- t(t(obj_normalized[,panel_start:panel_end]) / as.numeric(normalization_vector))
   # check whether you adjusted the range approximately from 0 to 1
-  apply(obj_normalized[,8:48], 2, max)
+  apply(obj_normalized[,panel_start:panel_end], 2, max)
   
   # sample (sample_n) for later use by object type
   n_sub_fraction <- 1500
