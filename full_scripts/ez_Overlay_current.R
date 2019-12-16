@@ -1,5 +1,5 @@
 ##### ez_Overlay_current #####
-  # Working with post-ez_segmenter data (MATLAB GUI generated) for single object overlay #
+  # Working with post-ez_segmenter data (MATLAB GUI generated) for single object overlay
   # Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
 
 # install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
@@ -10,14 +10,14 @@ load_ez_packages(T)
   # run on data that has been already read and transformed into R using ezAnalysis script (script will output all_data)
   data_for_overlays <- master_obj_data
   # enter head folder where your ez data is stored
-  dataPath = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
-  setwd(dataPath)
+  data_folder = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
+  setwd(data_folder)
   # runs, i.e. regions scanned
-  dataRuns = c('ezSegResults_CA2+', 'ezSegResults_DG+')
+  data_runs = c('ezSegResults_CA2+', 'ezSegResults_DG+')
   # shorthand for regions or runs, used in run_type_id
-  dataRunsShort = c('CA2', 'DG')
+  data_runs_short = c('CA2', 'DG')
   # where the objects / data / csv / mat files are stored
-  dataContainer = 'objects_points'
+  data_container = 'objects_points'
   # object types you plan to cluster)
   object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1', 'cell')
   # boolean denoting if clustering was performed on the objects (T) or not (F)
@@ -31,8 +31,8 @@ load_ez_packages(T)
 
 ##### OVERLAY CONSTRCTION PROCESS - run entire code block #####
   # for each run, for each point, for each object, create and save colored overlays
-  for (i in 1:length(dataRunsShort)) {
-    region = dataRunsShort[i]
+  for (i in 1:length(data_runs_short)) {
+    region = data_runs_short[i]
     
     #############NEEDS TO BE CHANGED - WILL MISS POINTS IF NOT IN POURE SEQUENTIAL ORDER
     for (p in point_list) {
@@ -41,7 +41,7 @@ load_ez_packages(T)
       for (obj_index in 1:length(object_types)) {
         # read matlab matrix of specific object type from specific point into R, if no entry create empty mask
         tryCatch({
-          obj_properties <- readMat(paste0(dataPath, '/', dataRuns[i], '/', dataContainer, '/Point', p, '/', object_types[obj_index], '_objData.mat'))
+          obj_properties <- readMat(paste0(data_folder, '/', data_runs[i], '/', data_container, '/Point', p, '/', object_types[obj_index], '_objData.mat'))
           # pull out mapped object ids as a matrix (defaults to image dimensions)
           obj_mask <- obj_properties$mapped.obj.ids
         }, error = function(err) {
@@ -79,10 +79,10 @@ load_ez_packages(T)
         obj_mask_b = obj_mask_b / 255
         
         img <- transpose(rgbImage(Image(obj_mask_r), Image(obj_mask_g), Image(obj_mask_b)))
-        dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i]), showWarnings = FALSE)
-        dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p), showWarnings = FALSE)
-        dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p, "/TIFs/"), showWarnings = FALSE)
-        writeImage(img, paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p, "/TIFs/", object_types[obj_index], ".tif"))
+        dir.create(paste0(data_folder, "/", data_runs[i], "/data_overlays_", data_runs_short[i]), showWarnings = FALSE)
+        dir.create(paste0(data_folder, "/", data_runs[i], "/data_overlays_", data_runs_short[i], "/Point", p), showWarnings = FALSE)
+        dir.create(paste0(data_folder, "/", data_runs[i], "/data_overlays_", data_runs_short[i], "/Point", p, "/TIFs/"), showWarnings = FALSE)
+        writeImage(img, paste0(data_folder, "/", data_runs[i], "/data_overlays_", data_runs_short[i], "/Point", p, "/TIFs/", object_types[obj_index], ".tif"))
       }
     }
   }
