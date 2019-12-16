@@ -1,13 +1,13 @@
-##### ez_Analysis_current #####
-  # Working with post-ez_segmenter data (MATLAB generated) for single object extraction and analysis
-  # Author: Bryan Cannon 2019 (multiple code snippets taken or built from  DM, FH, EFM, DT)
+# First Brain [MIBI - ez_segmenter] Paper Data Analysis Script
+# Working with post-ez_segmenter data (MATLAB generated) for single object analysis
+# Author: Bryan Cannon 2019 (multiple code snippets taken or built from from DM, FH, EFM, DT)
 
 ##### STEPS #####:
 
-##### 0) INSTALL / LOAD PKGS #####
-  # install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
-  install_ez_packages(T)
-  load_ez_packages(T)
+##### 0) LOAD PKGS #####
+  
+  # load necessary packages
+  # go to packages file, this line will be converted into a function later
 
   # set seed for downstream analysis
   seed <- 123 
@@ -18,18 +18,18 @@
   data_folder <- '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
   setwd(data_folder)
   # specify run folders
-  data_runs <- c('ezSegResults_CA2+', 'ezSegResults_DG+')
-  data_runs_short = c('CA2', 'DG')
+  ez_runs <- c('ezSegResults_CA2+', 'ezSegResults_DG+')
+  ez_runs_short = c('CA2', 'DG')
   object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1')
   
   # create data.frame containing single object data from csv files - for each run and each object type
   master_obj_data <- data.frame()
   
-  for (run_index in 1:length(data_runs)){
+  for (run_index in 1:length(ez_runs)){
     obj_data_raw_all <- data.frame()
     
     for (obj_type in object_types) {
-      csv_names <- list.files(path = paste0(data_runs[run_index],'/','objects_points'), recursive = T, full.names = T, pattern = paste0(obj_type, "_dataScaleSize.csv")) # read in csv files for object type
+      csv_names <- list.files(path = paste0(ez_runs[run_index],'/','objects_points'), recursive = T, full.names = T, pattern = paste0(obj_type, "_dataScaleSize.csv")) # read in csv files for object type
       csv_names <- mixedsort(csv_names)
       
       obj_data_raw <- lapply(csv_names, read.csv) %>% bind_rows() # grab data from csv's then convert data to data.frame
@@ -40,7 +40,7 @@
       obj_data_raw_all <- rbind(obj_data_raw_all, obj_data_raw) # collate to run data.frame
     }
     
-    run_type_id <- rep(data_runs_short[run_index], dim(obj_data_raw_all)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
+    run_type_id <- rep(ez_runs_short[run_index], dim(obj_data_raw_all)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
     obj_data_raw_all <- cbind(obj_data_raw_all, run_type_id) # add run_type_id to data
     
     master_obj_data <- rbind(master_obj_data, obj_data_raw_all) # collate to master data.frame
@@ -53,8 +53,8 @@
 # linear, arcsinh, quantile normalization of data + setting up subsamples (need to revisit - do per object type)
   
   # assign and standardize panels if needed
-  panel_start = 4
-  panel_end = 55
+  panel_start = 8
+  panel_end = 48
   panel <- names(master_obj_data[,panel_start:panel_end][, -c(4,5)]) # remove metals, composites, other labels
   
   # linear transformation

@@ -1,35 +1,35 @@
-# First Brain MIBI <- [ez_segmenter + deepCell] Paper Data Analysis Script
-# Working with post-ez_segmenter data (MATLAB generated) for single object analysis
-# Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
+##### ez_deepcell_Analysis_current #####
+  # Working with post-ez_segmenter data (MATLAB generated) for single object + cell analysis
+  # Author: Bryan Cannon 2019 (multiple code snippets taken or built from DM, FH, EFM, DT)
 
 ##### STEPS #####:
 
-##### 0) LOAD PKGS #####
+##### 0) INSTALL / LOAD PKGS #####
+  # install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
+  install_ez_packages(T)
+  load_ez_packages(T)
   
-  # load necessary packages
-  # go to packages file, this line will be converted into a function later
-
   # set seed for downstream analysis
   seed <- 123 
   set.seed(seed)
 
 ##### 1a) LOAD ezSeg DATA #####
   # move to location of your data, load in csv and .mat files (spatial information stored in .mat)
-  ez_folder <- '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
-  setwd(ez_folder)
+  data_folder <- '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
+  setwd(data_folder)
   # specify run folders
-  ezRun <- c('ezSegResults_CA2+', 'ezSegResults_DG+')
-  ezRunsShort = c('CA2', 'DG')
+  ez_runs <- c('ezSegResults_CA2+', 'ezSegResults_DG+')
+  ez_runs_short = c('CA2', 'DG')
   object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1')
   
 # create data.frame containing single object data from csv files - for each run and each object type
   master_obj_data <- data.frame()
   
-  for (run_index in 1:length(ezRun)){
+  for (run_index in 1:length(ez_runs)){
     obj_data_raw_all <- data.frame()
     
     for (obj_type in object_types) {
-      csv_names <- list.files(path = paste0(ezRun[run_index],'/','objects_points'), recursive = T, full.names = T, pattern = paste0(obj_type, "_dataScaleSize.csv")) # read in csv files for object type
+      csv_names <- list.files(path = paste0(ez_runs[run_index],'/','objects_points'), recursive = T, full.names = T, pattern = paste0(obj_type, "_dataScaleSize.csv")) # read in csv files for object type
       csv_names <- mixedsort(csv_names)
       
       obj_data_raw <- lapply(csv_names, read.csv) %>% bind_rows() # grab data from csv's then convert data to data.frame
@@ -40,7 +40,7 @@
       obj_data_raw_all <- rbind(obj_data_raw_all, obj_data_raw) # collate to run data.frame
     }
     
-    run_type_id <- rep(ezRunsShort[run_index], dim(obj_data_raw_all)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
+    run_type_id <- rep(ez_runs_short[run_index], dim(obj_data_raw_all)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
     obj_data_raw_all <- cbind(obj_data_raw_all, run_type_id) # add run_type_id to data
     
     master_obj_data <- rbind(master_obj_data, obj_data_raw_all) # collate to master data.frame
@@ -53,15 +53,15 @@
   # move to location of your data, load in fcs and .mat files (spatial information retained here)
   data_folder_DC <- '/Volumes/BryJC_Stanford/deepCell/'
   setwd(data_folder_DC)
-  deepcellRun <- c('190505HiResDG', '190604HiResCA2')
-  deepcellRunsShort = c('CA2', 'DG')
+  deepcell_runs <- c('190505HiResDG', '190604HiResCA2')
+  deepcell_runs_short = c('CA2', 'DG')
   
   # create FlowSet from fcs files
   
   master_cell_data <- data.frame()
   
-  for (run_index in 1:length(deepcellRun)) {
-    fcs_names <- c(list.files(path = paste0(deepcellRun[run_index],'/','fcs_single_cell_dynamic_expansion'), full.names = T, pattern = "(dataScaleSizeFCS.*fcs)"))
+  for (run_index in 1:length(deepcell_runs)) {
+    fcs_names <- c(list.files(path = paste0(deepcell_runs[run_index],'/','fcs_single_cell_dynamic_expansion'), full.names = T, pattern = "(dataScaleSizeFCS.*fcs)"))
     cell_flowSet <- read.flowSet(files = fcs_names, alter.names = T, transformation = FALSE, emptyValue = FALSE, truncate_max_range = FALSE)
     cell_data_matrix <- fsApply(cell_flowSet, Biobase::exprs) #https://support.bioconductor.org/p/109128/ --> explains why use Biobase::exprs
     cell_data_raw <- as.data.frame(cell_data_matrix)
@@ -82,7 +82,7 @@
     cell_type_id <- rep('cell', dim(cell_data_raw)[1]) # create column of length object number with cell_type info (just 'cell' for now)
     cell_data_raw <- cbind(cell_data_raw, cell_type_id) # add cell_type_id to data
     
-    run_type_id <- rep(deepcellRunsShort[run_index], dim(cell_data_raw)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
+    run_type_id <- rep(deepcell_runs_short[run_index], dim(cell_data_raw)[1]) # create column of length object number with run_type info, name run names to reflect actual regions
     cell_data_raw <- cbind(cell_data_raw, run_type_id) # add run_type_id to data
     
     master_cell_data <- rbind(master_cell_data, cell_data_raw)
@@ -98,29 +98,31 @@
   master_cell_data <- master_cell_data %>% select(point_id, everything()) # move point_id to start of deep cell data to match ez column order
   
   # row bind the deepCell dataFrame data with ezSeg dataFrame data
-  master_data <- rbind(master_cell_data, master_obj_data[,-c(51:55)]) # excluding composite channels from  imported ez data
+  master_data <- rbind(master_cell_data, master_obj_data[,-c(51:55)]) # excluding composite channels from imported ez data
   
 ##### 2) TRANSFORMATION & SAMPLING #####
 # linear, arcsinh, quantile normalization of data + setting up subsamples (need to revisit - do per object type)
 
   # assign and standardize panels if needed
-  panel <- names(master_obj_data[ ,8:48][, -c(4,5)]) # remove metals, composites, other labels
+  panel_start = 8
+  panel_end = 48
+  panel <- names(master_data[ ,panel_start:panel_end][, -c(4,5)]) # remove metals, composites, other labels
     
   # linear transformation
   data_linear_transform <- master_data
-  data_linear_transform[,4:50] <- data_linear_transform[,4:50]*100 # multiply all counts by 100 (linear transform)
+  data_linear_transform[,panel_start:panel_end] <- data_linear_transform[,panel_start:panel_end]*100 # multiply all counts by 100 (linear transform)
   
   # do arcsinh transformation only for the clustering.channels
   data_lin_asinh_transf <- data_linear_transform
   asinh_scale <- 5
-  data_lin_asinh_transf[,4:50] <- asinh(data_lin_asinh_transf[,4:50] / asinh_scale)
+  data_lin_asinh_transf[,panel_start:panel_end] <- asinh(data_lin_asinh_transf[,panel_start:panel_end] / asinh_scale)
   
   # PERCENTILE normalize expression values from 0 to 1
   data_normalized <- data_lin_asinh_transf
-  normalization_vector <- apply(data_lin_asinh_transf[,4:50], 2, function(x) quantile(x, 0.9999, names = F))
-  data_normalized[,4:50] <- t(t(data_normalized[,4:50]) / as.numeric(normalization_vector))
+  normalization_vector <- apply(data_lin_asinh_transf[,panel_start:panel_end], 2, function(x) quantile(x, 0.9999, names = F))
+  data_normalized[,panel_start:panel_end] <- t(t(data_normalized[,panel_start:panel_end]) / as.numeric(normalization_vector))
   # check whether you adjusted the range approximately from 0 to 1
-  apply(data_normalized[,4:50], 2, max)
+  apply(data_normalized[,panel_start:panel_end], 2, max)
   
   # sample (sample_n) for later use by object type
   n_sub_fraction <- 1500
@@ -137,8 +139,6 @@
 # Initial plots to quickly observe the data
 
 ##### 4) CLUSTERING & PHENOTYPING #####
-  
-library(FlowSOM)
 
 # initial cluster number  
 num_clusters <- 5

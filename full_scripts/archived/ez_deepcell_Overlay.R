@@ -9,14 +9,14 @@ library(reshape2)
 # run on data that has been already read and transformed into R using ezAnalysis script (script will output all_data)
 data_for_overlays <- master_data
 
-dataPath = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
-setwd(dataPath)
+data_folder = '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
+setwd(data_folder)
 # runs, i.e. regions scanned
-dataRuns = c('ezSegResults_CA2+', 'ezSegResults_DG+')
+ez_runs = c('ezSegResults_CA2+', 'ezSegResults_DG+')
 # shorthand for regions or runs, used in run_type_id
-dataRunsShort = c('CA2', 'DG')
+ez_runs_short = c('CA2', 'DG')
 # where the objects / data / csv / mat files are stored
-dataContainer = 'objects_points'
+ez_data_container = 'objects_points'
 # object types you plan to cluster)
 object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1', 'cell')
 # boolean denoting if clustering was performed on the objects or not
@@ -27,8 +27,8 @@ palette <- c25
 resolution_dim = c(1024, 1024)
 
 # for each run, for each point, for each object, create and save colored overlays
-for (i in 1:length(dataRunsShort)) {
-  region = dataRunsShort[i]
+for (i in 1:length(ez_runs_short)) {
+  region = ez_runs_short[i]
   
   for (p in 1:length(unique(subset(data_for_overlays, run_type_id == region)$point_id)) ) {
     print(paste0("Processing region: ", region, ". Point: ", p))
@@ -36,7 +36,7 @@ for (i in 1:length(dataRunsShort)) {
     for (obj_index in 1:length(object_types)) {
       # read matlab matrix of specific object type from specific point into R, if no entry create empty mask
       tryCatch({
-        obj_properties <- readMat(paste0(dataPath, '/', dataRuns[i], '/', dataContainer, '/Point', p, '/', object_types[obj_index], '_objData.mat'))
+        obj_properties <- readMat(paste0(data_folder, '/', ez_runs[i], '/', ez_data_container, '/Point', p, '/', object_types[obj_index], '_objData.mat'))
         # pull out mapped object ids as a matrix (defaults to image dimensions)
         obj_mask <- obj_properties$mapped.obj.ids
       }, error = function(err) {
@@ -79,9 +79,9 @@ for (i in 1:length(dataRunsShort)) {
       
       # create image, directory, save image
       img <- transpose(rgbImage(Image(obj_mask_r), Image(obj_mask_g), Image(obj_mask_b)))
-      dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i]), showWarnings = FALSE)
-      dir.create(paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p), showWarnings = FALSE)
-      writeImage(img, paste0(dataPath, "/", dataRuns[i], "/data_overlays_", dataRunsShort[i], "/Point", p, "/", object_types[obj_index], ".tif"))
+      dir.create(paste0(data_folder, "/", ez_runs[i], "/data_overlays_", ez_runs_short[i]), showWarnings = FALSE)
+      dir.create(paste0(data_folder, "/", ez_runs[i], "/data_overlays_", ez_runs_short[i], "/Point", p), showWarnings = FALSE)
+      writeImage(img, paste0(data_folder, "/", ez_runs[i], "/data_overlays_", ez_runs_short[i], "/Point", p, "/", object_types[obj_index], ".tif"))
   }
   }
   
