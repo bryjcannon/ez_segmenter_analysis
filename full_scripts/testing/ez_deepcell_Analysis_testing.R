@@ -18,7 +18,7 @@
   data_folder <- '/Volumes/BryJC_Stanford/For_Ez_Segmentor/HiADCase_Hippocampus /denoisedfft_HiResADuci2717J'
   setwd(data_folder)
   # specify run folders
-  ez_runs <- c('ezSegResults_CA2+', 'ezSegResults_DG+')
+  ez_runs <- c('ezSegResults_CA2_fix', 'ezSegResults_DG_fix')
   ez_runs_short = c('CA2', 'DG')
   object_types <- c('amyloidopathy', 'tauopathy', 'microglia_process', 'vessel_CD31_CD105', 'vessel_MCT1')
   
@@ -106,7 +106,7 @@
   # assign and standardize panels if needed
   panel_start = 8
   panel_end = 48
-  panel <- names(master_data[ ,panel_start:panel_end][, -c(4,5)]) # remove metals, composites, other labels
+  panel <- names(master_data[,panel_start:panel_end][, -c(4,5)]) # remove metals, composites, other labels
     
   # linear transformation
   data_linear_transform <- master_data
@@ -145,7 +145,7 @@ num_clusters <- 5
 # color palette of choice, here using c25 from brain_data_pkg
 palette <- c25
 
-clustering_markers <- c('HistoneH3Lyo', 'MAP2', 'VGAT', 'VGLUT1', 'VGLUT2', 'X8OHGuano', 'GFAP', 'Iba1', 'CD45', 'MCT1', 'CD31')
+clustering_markers <- c('MAP2', 'GFAP', 'Iba1', 'CD45', 'MCT1', 'CD31', 'CD105', 'SERT', 'MFN2', 'MAG', 'TH', 'Parvalbumin', 'Reelin', 'MBP')
 exclude <- c("C12", "Na23", "Si28", "Ca40", "Background", "Ta181", "Au197", "empty113" )
 
 markers <- setdiff(panel, exclude)
@@ -162,9 +162,9 @@ markers <- setdiff(panel, exclude)
   # save labels
   #write_rds(labels, “labels_sub.rds”)
   #labels <- read_rds(“labels_sub.rds”)
-  master_cell_data$labels <- as.factor(labels)
+  master_data$labels <- as.factor(labels)
   # calculate heatmap from all samples
-  master_cell_data %>%
+  master_data %>%
     dplyr::group_by(labels) %>%
     dplyr::summarize_if(is.numeric, funs(mean)) %>%
     ungroup() ->
@@ -177,7 +177,7 @@ flowFrame_cluster <-  flowFrame(exprs = as.matrix(subset(master_data, obj_type_i
 
 # run FlowSOM on the above flowFrame which has already had transformation performed
 fSOM <- FlowSOM(flowFrame_cluster,
-                compensate = F, scale = F, colsToUse = clustering_markers, nClus = num_clusters, seed = 140214)
+                compensate = F, scale = F, colsToUse = clustering_markers, nClus = num_clusters, seed = 123)
 
 table(fSOM$metaclustering) 
 metaClustering <- fSOM$metaclustering

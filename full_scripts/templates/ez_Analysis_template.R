@@ -6,6 +6,7 @@
 
 ##### 0) INSTALL / LOAD PKGS #####
   # install and / or load ez_pkgs if you haven't already done so (will also install color scheme)
+  # to do this make sure you go to ez_lib script and source it. below functions will then work
   install_ez_packages(T)
   load_ez_packages(T)
 
